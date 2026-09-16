@@ -48,26 +48,40 @@ export async function ensureConnected(): Promise<void> {
 
   const picked = pickConfig(url, host);
   const config: BrainAdapterConfig = picked.config;
-  let ensured = false;
-  for (let attempt = 0; attempt < 8; attempt++) {
-    try {
-      const resp = (await sendToTab(tabId, { kind: 'BRAIN_ENSURE' })) as { ok?: boolean } | undefined;
-      if (resp?.ok) {
-        ensured = true;
-        break;
+  const targetTabId = tabId as number;
+
+  async function probe(): Promise<boolean> {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const resp = (await sendToTab(targetTabId, { kind: 'BRAIN_ENSURE' })) as { ok?: boolean } | undefined;
+        if (resp?.ok) return true;
+      } catch {
+        /* retry */
       }
-    } catch {
-      /* retry */
+      await sleep(800);
     }
-    await sleep(800);
+    return false;
+  }
+
+  let ensured = await probe();
+  if (!ensured) {
+    // The extension may have been reloaded since this tab was opened — that
+    // destroys the page's content script. Reloading the page re-injects it.
+    await chrome.tabs.reload(targetTabId).catch(() => undefined);
+    await waitForTabLoad(targetTabId, 30000);
+    ensured = await probe();
   }
   if (!ensured) {
+    const tab = await chrome.tabs.get(targetTabId).catch(() => undefined);
     throw new Error(
-      'Could not reach the brain page. Reload the AI tab once. It must be a normal HTTPS page (not chrome://, not a PDF).'
+      `Could not reach the brain page (tab ${targetTabId}${tab?.url ? ` at ${tab.url}` : ''}). ` +
+        'The extension is running but no content script is answering on that tab — it usually means ' +
+        'the tab lost the script when the extension was reloaded. Press F5 on the AI tab (and make ' +
+        'sure you are logged in, on the real chat page), then Connect again.'
     );
   }
-  await sendToTab(tabId, { kind: 'BRAIN_SETUP', config });
-  store.patch({ brainTabId: tabId, connected: true, adapter: config, status: 'ready' });
+  await sendToTab(targetTabId, { kind: 'BRAIN_SETUP', config });
+  store.patch({ brainTabId: targetTabId, connected: true, adapter: config, status: 'ready' });
   store.log('ok', `Brain connected: ${urlParsed.origin} (adapter: ${pickPreset(url).id})`);
 }
 
