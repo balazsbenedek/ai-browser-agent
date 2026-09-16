@@ -1,5 +1,6 @@
 import { describeHost, pickConfig } from './config';
 import { pickPreset } from './adapters';
+import { wrapForBrain } from '../../shared/toolcall';
 
 // Connection/messaging with the "brain" AI page.
 import { sendToTab } from '../../shared/messages';
@@ -78,7 +79,11 @@ export async function submitToBrain(text: string): Promise<number> {
   const tabId = brainTabId();
   if (!tabId) throw new Error('Brain not connected');
   const seq = nextSeq();
-  const { wrapForBrain } = await import('../../shared/toolcall');
-  await sendToTab(tabId, { kind: 'BRAIN_SUBMIT', text: wrapForBrain(text.trim(), seq), seq });
+  const resp = (await sendToTab(tabId, { kind: 'BRAIN_SUBMIT', text: wrapForBrain(text.trim(), seq), seq })) as
+    | { ok?: boolean; error?: string }
+    | undefined;
+  if (resp && resp.ok === false) {
+    throw new Error(`Brain submit failed: ${resp.error ?? 'unknown error'}`);
+  }
   return seq;
 }

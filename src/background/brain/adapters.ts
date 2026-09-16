@@ -54,6 +54,19 @@ export const PRESETS: AdapterPreset[] = [
     }
   },
   {
+    id: 'deepseek',
+    label: 'DeepSeek',
+    test: (u) => /(^|\.)chat\.deepseek\.com$/i.test(hostOf(u)),
+    config: {
+      input: '#chat-input',
+      send: 'button[aria-label="Send message"], [data-testid="send-button"], [role="button"][aria-label*="send"], button[type="submit"]',
+      messages: '.ds-markdown',
+      loading: [],
+      stabilityMs: 1600,
+      timeoutMs: 120000
+    }
+  },
+  {
     id: 'generic',
     label: 'Generic / custom LLM UI',
     test: () => true,
