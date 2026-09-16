@@ -1,0 +1,124 @@
+:root {
+  --bg: #0f1117;
+  --bg2: #171a24;
+  --card: #1d2130;
+  --border: #2a2f42;
+  --fg: #e6e8f0;
+  --muted: #9aa1b5;
+  --accent: #6366f1;
+  --accent2: #4f46e5;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --err: #f87171;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.45 -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.brand { font-weight: 700; font-size: 13px; letter-spacing: 0.2px; }
+.dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #3b4156; margin-left: auto;
+}
+.dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+
+.tabs { display: flex; gap: 4px; margin-left: 8px; }
+.tab {
+  background: transparent; color: var(--muted); border: 1px solid transparent;
+  padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: 12px;
+}
+.tab.active { background: var(--accent); color: #fff; }
+
+.section { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.card label { font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; }
+
+.row { display: flex; gap: 6px; align-items: center; }
+.grow { flex: 1; }
+
+.input {
+  background: var(--bg); color: var(--fg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 9px; font-size: 13px; min-width: 0;
+}
+.input:focus { outline: none; border-color: var(--accent); }
+.textarea { resize: vertical; font-family: var(--mono); font-size: 12px; }
+.num { width: 70px; }
+
+.btn {
+  background: #262b3d; color: var(--fg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 12px; white-space: nowrap;
+}
+.btn:hover { background: #31385000; background: #313850; }
+.btn.primary { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+.btn.primary:hover { background: var(--accent); }
+.btn.danger { border-color: #7f1d1d; color: var(--err); }
+.btn.small { padding: 3px 8px; font-size: 11px; border-radius: 6px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.hint { color: var(--muted); font-size: 11px; }
+.field { color: var(--muted); font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
+.checkline { display: flex; align-items: center; gap: 8px; color: var(--fg); font-weight: 400; text-transform: none; font-size: 13px; cursor: pointer; }
+
+.banner {
+  border-radius: 10px; padding: 10px 12px; margin: 10px 12px 0;
+  display: flex; flex-direction: column; gap: 8px; font-size: 13px;
+}
+.banner-approval { background: #3b2e0c; border: 1px solid #7c5c10; }
+.banner-ask { background: #0e2f2a; border: 1px solid #0f766e; }
+.banner-note { background: var(--bg2); border: 1px solid var(--border); }
+.banner-title { font-weight: 700; }
+.banner-text { color: var(--fg); }
+.banner-code { white-space: pre-wrap; word-break: break-all; font-family: var(--mono); font-size: 11px; color: var(--warn); }
+.banner-actions { display: flex; gap: 8px; }
+
+.logbox {
+  font-family: var(--mono); font-size: 11px; max-height: 260px; overflow-y: auto;
+  background: #0b0d13; border: 1px solid var(--border); border-radius: 8px; padding: 6px;
+}
+.log { display: flex; gap: 8px; padding: 1px 0; word-break: break-word; }
+.log-t { color: var(--muted); flex-shrink: 0; }
+.log-info .log-body { color: var(--muted); }
+.log-brain .log-body { color: #c4b5fd; }
+.log-call .log-body { color: var(--warn); }
+.log-ok .log-body, .log-result .log-body { color: var(--ok); }
+.log-error .log-body { color: var(--err); }
+.log-ask .log-body { color: #5eead4; }
+.log-approval .log-body { color: var(--warn); }
+
+.tablist { display: flex; flex-direction: column; gap: 4px; }
+.tabrow {
+  display: flex; gap: 8px; align-items: center;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px;
+}
+.tab-fav img { width: 16px; height: 16px; }
+.tab-meta { flex: 1; min-width: 0; }
+.tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab-url { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.foot {
+  padding: 6px 10px; color: var(--muted); font-size: 11px;
+  border-top: 1px solid var(--border); background: var(--bg2);
+}
