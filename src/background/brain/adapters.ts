@@ -58,9 +58,10 @@ export const PRESETS: AdapterPreset[] = [
     label: 'DeepSeek',
     test: (u) => /(^|\.)chat\.deepseek\.com$/i.test(hostOf(u)),
     config: {
-      input: '#chat-input',
+      input:
+        'textarea#chat-input, textarea[placeholder*="Send a message"], textarea[placeholder*="Message"], textarea[placeholder*="Ask"], textarea[placeholder*="发送"], div[contenteditable="true"][role="textbox"]',
       send: 'button[aria-label="Send message"], [data-testid="send-button"], [role="button"][aria-label*="send"], button[type="submit"]',
-      messages: '.ds-markdown',
+      messages: '.ds-markdown, [data-message-author-role="assistant"]',
       loading: [],
       stabilityMs: 1600,
       timeoutMs: 120000

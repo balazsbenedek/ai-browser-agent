@@ -178,7 +178,21 @@ async function waitForReply(seq: number, timeoutMs: number, stabilityMs: number)
 async function submit(text: string, seq: number): Promise<unknown> {
   if (!cfg) return { ok: false, error: 'not configured' };
   const input = document.querySelector<HTMLElement>(cfg.input);
-  if (!input) return { ok: false, error: `input not found: ${cfg.input}` };
+  if (!input) {
+    const found = Array.from(document.querySelectorAll<HTMLElement>('textarea, [contenteditable="true"]'))
+      .slice(0, 5)
+      .map((el) => {
+        const id = el.id ? `#${el.id}` : '';
+        const cls = (el.className && typeof el.className === 'string' ? `.${el.className.split(/\s+/).join('.')}` : '') || '';
+        const name = el.getAttribute('name') ? `[name="${el.getAttribute('name')}"]` : '';
+        return `${el.tagName.toLowerCase()}${id}${cls}${name}`.slice(0, 120);
+      });
+    return {
+      ok: false,
+      error: `input not found: ${cfg.input} (page: ${location.href})` +
+        (found.length ? `; found on page: ${found.join(', ')}` : '')
+    };
+  }
   try {
     typeInto(input, text);
   } catch (e) {
