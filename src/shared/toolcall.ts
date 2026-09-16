@@ -45,6 +45,16 @@ export function parseToolCalls(text: string): ToolCall[] {
         // not ours
       }
       i = Math.max(i + 1, j);
+    } else if (/^\s*\{.*\}\s*$/.test(line)) {
+      // accept a bare JSON object on its own line (model may drop the fence)
+      try {
+        const obj = JSON.parse(line) as Partial<ToolCall>;
+        if (obj && typeof obj.tool === 'string') {
+          calls.push({ tool: obj.tool, args: (obj.args ?? {}) as Record<string, unknown> });
+        }
+      } catch {
+        // not ours
+      }
     }
     i++;
   }

@@ -20,6 +20,7 @@ You may emit several blocks in one message. Execute one step at a time and prefe
 \`\`\`
 
 # Rules
+- Your first message after the task must be a single tool call — never a text reply, plan, or question. If in doubt, start with list_tabs.
 - Do NOT explain what you're going to do unless you are genuinely stuck. Calls are enough.
 - If a result contains an error or a dened permission, adapt and try another way.
 - When you need to look at the browser: list_tabs (never assume tab ids), activate_tab the one you want, then screenshot or read_page it.

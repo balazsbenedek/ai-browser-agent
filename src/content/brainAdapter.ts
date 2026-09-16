@@ -139,16 +139,21 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForReply(seq: number, timeoutMs: number, stabilityMs: number): Promise<string> {
+async function waitForReply(
+  seq: number,
+  timeoutMs: number,
+  stabilityMs: number,
+  baseline = ''
+): Promise<string> {
   const start = Date.now();
-  let prev = '';
-  let stableSince = 0;
+  let prev = baseline;
   let last = '';
+  let stableSince = Date.now();
   const mark = `[agent-turn:${seq}]`;
 
   while (Date.now() - start < timeoutMs) {
     let snap = '';
-    const { text, stable } = lastAssistant(cfg?.messages);
+    const { text } = lastAssistant(cfg?.messages);
     if (cfg?.messages) {
       snap = text;
     } else {
@@ -161,13 +166,14 @@ async function waitForReply(seq: number, timeoutMs: number, stabilityMs: number)
     const trailIdx = snap.lastIndexOf(mark);
     if (trailIdx >= 0) snap = snap.slice(0, trailIdx).trim();
 
-    const changed = snap !== prev && snap.length > 0;
-    if (snap && snap.length > 0) last = snap;
-    if (changed || !stable) {
+    const isNew = snap.length > 0 && snap !== baseline;
+    const changed = isNew && snap !== prev;
+    if (changed) {
       stableSince = Date.now();
       prev = snap;
+      last = snap;
     }
-    if (snap.length > 0 && Date.now() - stableSince > stabilityMs) {
+    if (last && isNew && snap === prev && Date.now() - stableSince > stabilityMs) {
       return last;
     }
     await sleep(250);
@@ -201,11 +207,11 @@ async function submit(text: string, seq: number): Promise<unknown> {
   await sleep(120);
   const sent = clickSend(cfg.send);
   if (!sent) pressEnter(input);
-  // start the responder watcher (fire-and-forget)
   const stabilityMs = cfg.stabilityMs ?? 1400;
   const timeoutMs = cfg.timeoutMs ?? 120000;
+  const baseline = cfg?.messages ? lastAssistant(cfg.messages).text : '';
   void (async () => {
-    const reply = await waitForReply(seq, timeoutMs, stabilityMs);
+    const reply = await waitForReply(seq, timeoutMs, stabilityMs, baseline);
     if (reply) post({ kind: 'BRAIN_MESSAGE', text: reply, ts: Date.now() });
   })();
   return { ok: true, method: sent ? 'send-button' : 'enter' };
